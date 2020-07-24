@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 
-class IconCheckboxWithLabel extends StatefulWidget {
+class IconButtonWithLabel extends StatefulWidget {
   final Icon icon;
   final String label;
-  IconCheckboxWithLabel({
+  final bool toggleOnTap;
+  final void Function() onPressed;
+  IconButtonWithLabel({
     this.icon,
     this.label,
+    this.toggleOnTap = true,
+    this.onPressed,
   });
   @override
-  _IconCheckboxWithLabelState createState() => _IconCheckboxWithLabelState();
+  _IconButtonWithLabelState createState() => _IconButtonWithLabelState();
 }
 
-class _IconCheckboxWithLabelState extends State<IconCheckboxWithLabel> {
+class _IconButtonWithLabelState extends State<IconButtonWithLabel> {
   bool isChecked = false;
   void toggle() => setState(() => isChecked = !isChecked);
   @override
@@ -21,7 +25,7 @@ class _IconCheckboxWithLabelState extends State<IconCheckboxWithLabel> {
       children: <Widget>[
         IconButton(
           icon: widget.icon,
-          onPressed: toggle,
+          onPressed: widget.toggleOnTap ? toggle : widget.onPressed,
           color: isChecked ? Colors.blue : Colors.black54,
         ),
         Text(

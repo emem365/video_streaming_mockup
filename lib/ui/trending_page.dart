@@ -1,35 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:video_streaming_mockup/model/video.dart';
+import 'package:video_streaming_mockup/services/api_service.dart';
 import 'package:video_streaming_mockup/widgets/trending_tabs.dart';
-import 'package:video_streaming_mockup/ui/video_player_page.dart';
 import 'package:video_streaming_mockup/widgets/video_tile.dart';
 
-class TrendingPage extends StatelessWidget {
+class TrendingPage extends StatefulWidget {
+  @override
+  _TrendingPageState createState() => _TrendingPageState();
+}
+
+class _TrendingPageState extends State<TrendingPage> {
+  String _currentCategory = 'music';
+
+  final Map categories = {
+    'music': '10',
+    'sports': '17',
+    'games': '20',
+    'comedy': '23',
+  };
+
+  void musicOnPressed() => setState(() => _currentCategory = 'music');
+  void sportsOnPressed() => setState(() => _currentCategory = 'sports');
+  void gamesOnPressed() => setState(() => _currentCategory = 'games');
+  void comedyOnPressed() => setState(() => _currentCategory = 'comedy');
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      key: PageStorageKey('TrendingPage'),
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        if (index != 0)
-          return Padding(
-            padding: EdgeInsets.all(16),
-            child: VideoTile(
-              thumbnailUrl: "https://s2.dmcdn.net/v/HvVBH1O3T82ECA5Uk/x1080",
-              videoTitle:
-                  'Video Name, Lengthening the Title for the Idea of the Title Placement',
-              channelName: 'Channel Name',
-              views: 2738,
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => VideoPlayerPage(),
-                  ),
-                );
-              },
-            ),
-          );
-        return TrendingTabs();
-      },
+    return Column(
+      children: <Widget>[
+        TrendingTabs(
+          musicOnPressed: musicOnPressed,
+          sportsOnPressed: sportsOnPressed,
+          gamesOnPressed: gamesOnPressed,
+          comedyOnPressed: comedyOnPressed,
+        ),
+        Expanded(
+          child: FutureBuilder<List<Video>>(
+            future: APIService.instance.fetchMostPopularVideos(
+                categoryId: categories[_currentCategory]),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Video>> snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                print(snapshot.data);
+                return ListView.builder(
+                    key: PageStorageKey('TrendingPage'),
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (context, index) => Padding(
+                          padding: EdgeInsets.all(16),
+                          child: VideoTile(
+                            video: snapshot.data[index],
+                          ),
+                        ));
+              } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        ),
+      ],
     );
   }
 }

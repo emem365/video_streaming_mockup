@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_streaming_mockup/ui/app_screen.dart';
+import 'package:video_streaming_mockup/ui/youtube_video_player_screen.dart';
 
 void main() {
   runApp(MyApp());

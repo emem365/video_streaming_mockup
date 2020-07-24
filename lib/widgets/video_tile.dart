@@ -1,25 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:video_streaming_mockup/model/video.dart';
+import 'package:video_streaming_mockup/ui/youtube_video_player_screen.dart';
+import 'package:video_streaming_mockup/util/utilities.dart';
 
 class VideoTile extends StatelessWidget {
-  final String thumbnailUrl;
-  final String videoTitle;
-  final String channelName;
-  final int views;
-  final GestureTapCallback onTap;
+  final Video video;
+  VideoTile({this.video});
 
-  VideoTile({
-    @required this.thumbnailUrl,
-    @required this.videoTitle,
-    @required this.channelName,
-    @required this.views,
-    @required this.onTap,
-  });
+  void openVideoPlayer(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => YoutubeVideoPlayerScreen(video: video)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () => openVideoPlayer(context),
       child: Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -31,7 +28,7 @@ class VideoTile extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.0),
                 child: CachedNetworkImage(
                   fit: BoxFit.cover,
-                  imageUrl: thumbnailUrl,
+                  imageUrl: video.thumbnailUrl,
                   progressIndicatorBuilder: (context, __, ___) =>
                       Center(child: CircularProgressIndicator()),
                   errorWidget: (_, __, ___) => Center(child: Icon(Icons.error)),
@@ -41,7 +38,7 @@ class VideoTile extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Text(
-                videoTitle,
+                video.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.headline6,
@@ -49,23 +46,15 @@ class VideoTile extends StatelessWidget {
             ),
             Row(
               children: <Widget>[
-                Text(channelName, style: Theme.of(context).textTheme.bodyText1),
+                Text(video.channelTitle,
+                    style: Theme.of(context).textTheme.bodyText1),
                 SizedBox(width: 30),
-                Text(viewCountToString()),
+                Text(Utilities.countToString(video.views)+' views'),
               ],
             ),
           ],
         ),
       ),
     );
-  }
-
-  String viewCountToString() {
-    if (views > 1000000000)
-      return (views / 1000000000).toStringAsFixed(1) + 'B views';
-    if (views > 1000000)
-      return (views / 1000000).toStringAsFixed(1) + 'M views';
-    if (views > 1000) return (views / 1000).toStringAsFixed(1) + 'k views';
-    return views.toString() + ' views';
   }
 }

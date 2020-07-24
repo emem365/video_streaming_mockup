@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 
 class TrendingTabs extends StatelessWidget {
+  final void Function() musicOnPressed;
+  final void Function() sportsOnPressed;
+  final void Function() gamesOnPressed;
+  final void Function() comedyOnPressed;
+
+  TrendingTabs({
+    this.musicOnPressed,
+    this.sportsOnPressed,
+    this.gamesOnPressed,
+    this.comedyOnPressed,
+  });
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -16,7 +28,7 @@ class TrendingTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.0)),
               child: Text('Music'),
               color: Colors.blueAccent,
-              onPressed: () {},
+              onPressed: musicOnPressed,
             ),
             SizedBox(width: 16),
             RaisedButton(
@@ -24,7 +36,7 @@ class TrendingTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.0)),
               child: Text('Sports'),
               color: Colors.greenAccent,
-              onPressed: () {},
+              onPressed: sportsOnPressed,
             ),
             SizedBox(width: 16),
             RaisedButton(
@@ -32,15 +44,15 @@ class TrendingTabs extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12.0)),
               child: Text('Games'),
               color: Colors.redAccent,
-              onPressed: () {},
+              onPressed: gamesOnPressed,
             ),
             SizedBox(width: 16),
             RaisedButton(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0)),
-              child: Text('Education'),
+              child: Text('Comedy'),
               color: Colors.tealAccent,
-              onPressed: () {},
+              onPressed: comedyOnPressed,
             ),
           ],
         ),

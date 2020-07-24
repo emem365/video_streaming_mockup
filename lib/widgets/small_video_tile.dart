@@ -1,26 +1,24 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:video_streaming_mockup/model/video.dart';
+import 'package:video_streaming_mockup/ui/youtube_video_player_screen.dart';
+import 'package:video_streaming_mockup/util/utilities.dart';
 
 class SmallVideoTile extends StatelessWidget {
-  final String thumbnailUrl;
-  final String videoTitle;
-  final String channelName;
-  final String lengthInMinutes;
-  final int views;
-  final GestureTapCallback onTap;
+  final Video video;
 
   SmallVideoTile({
-    @required this.thumbnailUrl,
-    @required this.videoTitle,
-    @required this.channelName,
-    @required this.lengthInMinutes,
-    @required this.views,
-    @required this.onTap,
+    @required this.video,
   });
+  void openVideoPlayer(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => YoutubeVideoPlayerScreen(video: video)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () => openVideoPlayer(context),
       child: SizedBox(
         height: 125,
         child: Padding(
@@ -34,7 +32,7 @@ class SmallVideoTile extends StatelessWidget {
                   borderRadius: BorderRadius.circular(5),
                   child: CachedNetworkImage(
                     fit: BoxFit.cover,
-                    imageUrl: thumbnailUrl,
+                    imageUrl: video.thumbnailUrl,
                     progressIndicatorBuilder: (context, __, ___) =>
                         Center(child: CircularProgressIndicator()),
                     errorWidget: (_, __, ___) =>
@@ -50,7 +48,7 @@ class SmallVideoTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Text(
-                      videoTitle,
+                      video.title,
                       maxLines: 3,
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
@@ -60,24 +58,31 @@ class SmallVideoTile extends StatelessWidget {
                           .copyWith(fontSize: 12),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      lengthInMinutes,
-                      style: Theme.of(context).textTheme.caption,
-                    ),
+                    //TODO
+                    // Text(
+                    //   lengthInMinutes,
+                    //   style: Theme.of(context).textTheme.caption,
+                    // ),
                     SizedBox(height: 4),
                     Row(
                       children: <Widget>[
-                        Text(channelName,
+                        Expanded(
+                          child: Text(
+                            video.channelTitle,
                             style: Theme.of(context)
                                 .textTheme
                                 .subtitle2
-                                .copyWith(fontSize: 12)),
+                                .copyWith(fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                         SizedBox(width: 10),
-                        Text(viewCountToString(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle1
-                                .copyWith(fontSize: 12)),
+                        if (video.views != null)
+                          Text(Utilities.countToString(video.views) + ' views',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1
+                                  .copyWith(fontSize: 12)),
                       ],
                     )
                   ],
@@ -88,14 +93,5 @@ class SmallVideoTile extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String viewCountToString() {
-    if (views > 1000000000)
-      return (views / 1000000000).toStringAsFixed(1) + 'B views';
-    if (views > 1000000)
-      return (views / 1000000).toStringAsFixed(1) + 'M views';
-    if (views > 1000) return (views / 1000).toStringAsFixed(1) + 'k views';
-    return views.toString() + ' views';
   }
 }

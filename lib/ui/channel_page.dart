@@ -1,12 +1,18 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:video_streaming_mockup/model/channel.dart';
+import 'package:video_streaming_mockup/model/video.dart';
+import 'package:video_streaming_mockup/services/api_service.dart';
 import 'package:video_streaming_mockup/ui/app_screen.dart';
+import 'package:video_streaming_mockup/util/utilities.dart';
 import 'package:video_streaming_mockup/widgets/follow_button.dart';
 import 'package:video_streaming_mockup/ui/followers_page.dart';
 import 'package:video_streaming_mockup/ui/following_page.dart';
 import 'package:video_streaming_mockup/widgets/small_video_tile.dart';
-import 'package:video_streaming_mockup/ui/video_player_page.dart';
 
 class ChannelPage extends StatelessWidget {
+  final Channel channel;
+  ChannelPage({this.channel});
   final List<Map> tabs = [
     {
       'title': 'Home',
@@ -26,7 +32,7 @@ class ChannelPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Channel Name',
+          channel.title,
           style: Theme.of(context)
               .textTheme
               .headline6
@@ -67,13 +73,16 @@ class ChannelPage extends StatelessWidget {
             children: <Widget>[
               ListTile(
                   leading: CircleAvatar(
-                    child: Icon(
-                      Icons.person,
-                      color: Colors.blue,
-                    ),
+                    child: CachedNetworkImage(
+                        imageUrl: channel.thumbnailUrl,
+                        placeholder: (
+                          _,
+                          __,
+                        ) =>
+                            Icon(Icons.person, color: Colors.blue)),
                     radius: 36,
                   ),
-                  title: Text('Channel Name',
+                  title: Text(channel.title,
                       style: Theme.of(context)
                           .textTheme
                           .subtitle1
@@ -89,7 +98,7 @@ class ChannelPage extends StatelessWidget {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Text('140',
+                          Text(Utilities.countToString(channel.videoCount),
                               style: Theme.of(context).textTheme.subtitle2),
                           Text('Videos',
                               style: Theme.of(context).textTheme.caption),
@@ -97,19 +106,18 @@ class ChannelPage extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  FollowersPage(),
-                            ),
-                          );
+                          Scaffold.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Can\'t show subscribers of channel without channel permission')));
                         },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text('24k',
+                            Text(
+                                Utilities.countToString(
+                                    channel.subscriberCount),
                                 style: Theme.of(context).textTheme.subtitle2),
-                            Text('Followers',
+                            Text('Subscribers',
                                 style: Theme.of(context).textTheme.caption),
                           ],
                         ),
@@ -126,7 +134,7 @@ class ChannelPage extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text('24k',
+                            Text('17',
                                 style: Theme.of(context).textTheme.subtitle2),
                             Text('Following',
                                 style: Theme.of(context).textTheme.caption),
@@ -159,43 +167,38 @@ class ChannelPage extends StatelessWidget {
     );
   }
 
-  Widget _latestVideos(BuildContext context) => ListView.builder(
-        key: PageStorageKey('LatestVideos'),
-        itemCount: 5,
-        itemBuilder: (_, __) => SmallVideoTile(
-          thumbnailUrl:
-              "https://i.insider.com/5e8f427ac023204234683226?width=720&format=jpeg&auto=webpw",
-          videoTitle:
-              'Video Name, Lengthening the Title for the Idea of the Title Placement',
-          views: 2759,
-          lengthInMinutes: "04:08 mins",
-          channelName: 'Channel Name',
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => VideoPlayerPage(),
+  Widget _latestVideos(BuildContext context) => FutureBuilder<List<Video>>(
+        future: APIService.instance.fetchVideosFromChannelId(channel.id),
+        builder: (BuildContext context, AsyncSnapshot<List<Video>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              key: PageStorageKey('LatestVideos'),
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) => SmallVideoTile(
+                video: snapshot.data[index],
               ),
             );
-          },
-        ),
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
       );
-  Widget _allVideos(BuildContext context) => ListView.builder(
-        key: PageStorageKey('AllVideos'),
-        itemCount: 5,
-        itemBuilder: (_, __) => SmallVideoTile(
-          thumbnailUrl: "https://s2.dmcdn.net/v/HvVBH1O3T82ECA5Uk/x1080",
-          videoTitle:
-              'Video Name, Lengthening the Title for the Idea of the Title Placement',
-          views: 2759,
-          lengthInMinutes: "04:08 mins",
-          channelName: 'Channel Name',
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (BuildContext context) => VideoPlayerPage(),
+
+  Widget _allVideos(BuildContext context) => FutureBuilder<List<Video>>(
+        future: APIService.instance
+            .fetchVideosFromChannelId(channel.id, maxCount: 50),
+        builder: (BuildContext context, AsyncSnapshot<List<Video>> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              key: PageStorageKey('AllVideos'),
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) => SmallVideoTile(
+                video: snapshot.data[index],
               ),
             );
-          },
-        ),
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
+        },
       );
 }
