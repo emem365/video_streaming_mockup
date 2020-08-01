@@ -1,10 +1,11 @@
 # Video Streaming Mockup
 
-This application is a mockup to show how we can use Youtube API, in Flutter apps to getch top videos in your region, and you to make them streamable inside the app itself.
+This application is a mockup to show how we can use Youtube API, in Flutter apps, to fetch top videos in your region, and to make them streamable inside the app itself.
 
 ## Getting Started
 
 This is simple flutter project. If you want to mess around with the code, clone the repo: https://github.com/emem365/video_streaming_mockup.git
+
 Apart from the clone of the app, to get the app running, you need to get YouTube API Key.
 
 ### Prerequisites
